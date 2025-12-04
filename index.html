@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stranger Things | The Upside Down</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Rubik+Glitch&family=Inter:wght@300;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #050505;
+            --color-text: #e0e0e0;
+            --font-terminal: 'Courier Prime', monospace;
+            --font-display: 'Rubik Glitch', system-ui;
+            --font-body: 'Inter', sans-serif;
+            --cursor-color: rgba(255, 0, 0, 0.8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none !important;
+        }
+
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            width: 100vw;
+            transition: background-color 0.5s ease;
+        }
+
+        body.state-s1 {
+            --cursor-color: rgba(255, 0, 0, 0.8);
+        }
+
+        body.state-s2 {
+            --cursor-color: rgba(75, 0, 130, 0.8);
+        }
+
+        body.state-s3 {
+            --cursor-color: rgba(0, 255, 255, 0.8);
+        }
+
+        body.state-s4 {
+            --cursor-color: rgba(200, 20, 20, 1.0);
+        }
+
+        #world-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        #cursor-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            z-index: 10000;
+            /* Increased to be above welcome screen */
+            pointer-events: none;
+            will-change: transform;
+        }
+
+        .cursor-visual {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: var(--cursor-color);
+            box-shadow: 0 0 15px var(--cursor-color);
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, border-radius 0.3s, background-color 0.3s, box-shadow 0.3s, transform 0.3s;
+        }
+
+        body.state-s1 .cursor-visual {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #ff0000;
+            box-shadow: 0 0 15px #ff0000;
+            animation: breathing-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes breathing-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 15px #ff0000;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            50% {
+                box-shadow: 0 0 25px #ff0000;
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+        }
+
+        body.state-s2 .cursor-visual {
+            width: 30px;
+            height: 30px;
+            background: #4b0082;
+            box-shadow: 0 0 20px #4b0082;
+            animation: pulse-smoke 2s infinite;
+        }
+
+        @keyframes pulse-smoke {
+            0% {
+                opacity: 0.8;
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow: 0 0 20px #4b0082;
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: translate(-50%, -50%) scale(1.2);
+                box-shadow: 0 0 40px #4b0082;
+            }
+
+            100% {
+                opacity: 0.8;
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow: 0 0 20px #4b0082;
+            }
+        }
+
+        body.state-s3 .cursor-visual {
+            width: 25px;
+            height: 25px;
+            border-radius: 0;
+            background: transparent;
+            border: 2px solid #00ffff;
+            box-shadow: 0 0 10px #00ffff;
+            transform: translate(-50%, -50%) rotate(45deg);
+            animation: neon-spin 4s linear infinite;
+        }
+
+        @keyframes neon-spin {
+            0% {
+                transform: translate(-50%, -50%) rotate(45deg);
+                border-color: #00ffff;
+                box-shadow: 0 0 10px #00ffff;
+            }
+
+            50% {
+                border-color: #ffffff;
+                box-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff;
+            }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(405deg);
+                border-color: #00ffff;
+                box-shadow: 0 0 10px #00ffff;
+            }
+        }
+
+        body.state-s4 .cursor-visual {
+            width: 30px;
+            height: 40px;
+            background: #8a0303;
+            box-shadow: 0 0 15px #ff0000;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            animation: nervous-twitch 0.15s infinite;
+        }
+
+        @keyframes nervous-twitch {
+            0% {
+                transform: translate(-50%, -50%) translate(1px, 1px) scale(1);
+            }
+
+            25% {
+                transform: translate(-50%, -50%) translate(-2px, -2px) scale(1.05);
+            }
+
+            50% {
+                transform: translate(-50%, -50%) translate(2px, -1px) scale(0.95);
+            }
+
+            75% {
+                transform: translate(-50%, -50%) translate(-1px, 2px) scale(1.02);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) translate(1px, 1px) scale(1);
+            }
+        }
+
+        /* --- WELCOME SCREEN --- */
+        #welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            background-color: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 2s ease-in-out;
+        }
+
+        #welcome-screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-shadow: inset 0 0 150px rgba(255, 0, 0, 0.5);
+            animation: heartbeat 4s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        @keyframes heartbeat {
+
+            0%,
+            100% {
+                opacity: 0.1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        #welcome-screen h1 {
+            font-family: var(--font-display);
+            font-size: 6rem;
+            color: #ff0000;
+            text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
+            margin-bottom: 0.5rem;
+            animation: neon-flicker 3s infinite alternate;
+        }
+
+        #welcome-screen h2 {
+            font-family: var(--font-terminal);
+            font-size: 1.5rem;
+            color: #fff;
+            letter-spacing: 2px;
+            margin-bottom: 3rem;
+            opacity: 0.8;
+        }
+
+        #enter-btn {
+            background: transparent;
+            border: 2px solid #ff0000;
+            color: #ff0000;
+            font-family: var(--font-terminal);
+            font-size: 1.2rem;
+            padding: 1rem 2rem;
+            cursor: pointer !important;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
+            position: relative;
+            z-index: 10001;
+            /* Ensure clickable */
+        }
+
+        #enter-btn:hover {
+            background: rgba(255, 0, 0, 0.1);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+            transform: scale(1.05);
+        }
+
+        @keyframes neon-flicker {
+
+            0%,
+            19%,
+            21%,
+            23%,
+            25%,
+            54%,
+            56%,
+            100% {
+                opacity: 1;
+                text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
+            }
+
+            20%,
+            24%,
+            55% {
+                opacity: 0.5;
+                text-shadow: none;
+            }
+        }
+
+        /* --- CONTENT OVERLAY --- */
+        main {
+            position: relative;
+            z-index: 10;
+            pointer-events: none;
+            opacity: 0;
+            /* Hidden initially */
+            transition: opacity 2s ease-in-out;
+        }
+
+        section {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        h1,
+        h2 {
+            font-family: var(--font-display);
+            text-transform: uppercase;
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            pointer-events: auto;
+        }
+
+        p {
+            font-family: var(--font-terminal);
+            font-size: 1.3rem;
+            max-width: 700px;
+            pointer-events: auto;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 1), 0 0 20px rgba(0, 0, 0, 0.8);
+            line-height: 1.6;
+            margin-top: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .scroll-indicator {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: var(--font-terminal);
+            font-size: 0.8rem;
+            opacity: 0.5;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateX(-50%) translateY(0);
+            }
+
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+    </style>
+</head>
+
+<body class="state-s1">
+
+    <div id="welcome-screen">
+        <h1>STRANGER THINGS</h1>
+        <h2>THE INTERACTIVE CHRONICLE</h2>
+        <button id="enter-btn">ENTER HAWKINS</button>
+    </div>
+
+    <canvas id="world-canvas"></canvas>
+    <div id="cursor-container">
+        <div class="cursor-visual"></div>
+    </div>
+
+    <main>
+        <section id="season-1">
+            <h1>The Upside Down</h1>
+            <p class="scramble-text">November 1983. Will Byers vanishes into the Upside Down. A telekinetic girl named
+                Eleven arrives. Friends unite to fight the Demogorgon and uncover a government conspiracy.</p>
+        </section>
+        <section id="season-2">
+            <h1>The Mind Flayer</h1>
+            <p class="scramble-text">October 1984. The Mind Flayer looms over Hawkins in a storm of shadows. Will is
+                possessed by the hive mind. Eleven returns to close the gate before the darkness takes over.</p>
+        </section>
+        <section id="season-3">
+            <h1>Starcourt Mall</h1>
+            <p class="scramble-text">Summer 1985. The Starcourt Mall opens, hiding a secret Russian base beneath. The
+                Mind Flayer returns to build a physical body. Billy is lost. The Battle of Starcourt begins.</p>
+        </section>
+        <section id="season-4">
+            <h1>Vecna's Curse</h1>
+            <p class="scramble-text">Spring 1986. A new horror named Vecna strikes from the Upside Down, targeting
+                trauma. The gang splits between Hawkins, California, and Russia. Max runs up that hill. War is coming.
+            </p>
+        </section>
+    </main>
+
+    <div class="scroll-indicator">SCROLL TO EXPLORE</div>
+
+    <script>
+        const lerp = (start, end, t) => start * (1 - t) + end * t;
+        const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
+        const mapRange = (value, inMin, inMax, outMin, outMax) => (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+        const random = (min, max) => Math.random() * (max - min) + min;
+
+        class TextScramble {
+            constructor(el) {
+                this.el = el;
+                this.chars = '!<>-_\\/[]{}—=+*^?#________';
+                this.update = this.update.bind(this);
+            }
+
+            setText(newText) {
+                const oldText = this.el.innerText;
+                const length = Math.max(oldText.length, newText.length);
+                const promise = new Promise((resolve) => this.resolve = resolve);
+                this.queue = [];
+                for (let i = 0; i < length; i++) {
+                    const from = oldText[i] || '';
+                    const to = newText[i] || '';
+                    const start = Math.floor(Math.random() * 40);
+                    const end = start + Math.floor(Math.random() * 40);
+                    this.queue.push({ from, to, start, end });
+                }
+                cancelAnimationFrame(this.frameRequest);
+                this.frame = 0;
+                this.update();
+                return promise;
+            }
+
+            update() {
+                let output = '';
+                let complete = 0;
+                for (let i = 0, n = this.queue.length; i < n; i++) {
+                    let { from, to, start, end, char } = this.queue[i];
+                    if (this.frame >= end) {
+                        complete++;
+                        output += to;
+                    } else if (this.frame >= start) {
+                        if (!char || Math.random() < 0.28) {
+                            char = this.randomChar();
+                            this.queue[i].char = char;
+                        }
+                        output += `<span class="dud">${char}</span>`;
+                    } else {
+                        output += from;
+                    }
+                }
+                this.el.innerHTML = output;
+                if (complete === this.queue.length) {
+                    this.resolve();
+                } else {
+                    this.frameRequest = requestAnimationFrame(this.update);
+                    this.frame++;
+                }
+            }
+
+            randomChar() {
+                return this.chars[Math.floor(Math.random() * this.chars.length)];
+            }
+        }
+
+        class RenderEngine {
+            constructor() {
+                this.canvas = document.getElementById('world-canvas');
+                this.ctx = this.canvas.getContext('2d', { alpha: false });
+                this.width = window.innerWidth;
+                this.height = window.innerHeight;
+                this.pixelRatio = Math.min(window.devicePixelRatio, 2);
+
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+
+                this.sceneManager = new SceneManager(this.width, this.height);
+
+                this.cursorContainer = document.getElementById('cursor-container');
+                this.cursorX = window.innerWidth / 2;
+                this.cursorY = window.innerHeight / 2;
+                this.mouseX = this.cursorX;
+                this.mouseY = this.cursorY;
+
+                window.addEventListener('mousemove', e => {
+                    this.mouseX = e.clientX;
+                    this.mouseY = e.clientY;
+                });
+
+                this.initObserver();
+                this.initTextScramble();
+                this.loop = this.loop.bind(this);
+                requestAnimationFrame(this.loop);
+            }
+
+            initObserver() {
+                const options = { root: null, threshold: 0.5 };
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const seasonId = entry.target.id.split('-')[1];
+                            document.body.className = `state-s${seasonId}`;
+                        }
+                    });
+                }, options);
+                document.querySelectorAll('section').forEach(section => observer.observe(section));
+            }
+
+            initTextScramble() {
+                const options = { threshold: 0.5 };
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const p = entry.target.querySelector('.scramble-text');
+                            if (p && !p.dataset.scrambled) {
+                                const fx = new TextScramble(p);
+                                fx.setText(p.innerText);
+                                p.dataset.scrambled = 'true';
+                            }
+                        }
+                    });
+                }, options);
+                document.querySelectorAll('section').forEach(section => observer.observe(section));
+            }
+
+            resize() {
+                this.width = window.innerWidth;
+                this.height = window.innerHeight;
+                this.canvas.width = this.width * this.pixelRatio;
+                this.canvas.height = this.height * this.pixelRatio;
+                this.ctx.scale(this.pixelRatio, this.pixelRatio);
+                if (this.sceneManager) this.sceneManager.resize(this.width, this.height);
+            }
+
+            loop(timestamp) {
+                this.ctx.fillStyle = '#050505';
+                this.ctx.fillRect(0, 0, this.width, this.height);
+                this.sceneManager.update(timestamp);
+                this.sceneManager.render(this.ctx, this.width, this.height);
+
+                this.cursorX = lerp(this.cursorX, this.mouseX, 0.1);
+                this.cursorY = lerp(this.cursorY, this.mouseY, 0.1);
+                this.cursorContainer.style.transform = `translate3d(${this.cursorX}px, ${this.cursorY}px, 0)`;
+
+                requestAnimationFrame(this.loop);
+            }
+        }
+
+        class SceneManager {
+            constructor(width, height) {
+                this.scrollProgress = 0;
+                this.scenes = [
+                    new UpsideDownScene(),
+                    new MindFlayerScene(),
+                    new StarcourtScene(),
+                    new VecnaScene()
+                ];
+                this.scenes.forEach(scene => scene.init(width, height));
+                this.mouse = { x: width / 2, y: height / 2 };
+                window.addEventListener('mousemove', e => {
+                    this.mouse.x = e.clientX;
+                    this.mouse.y = e.clientY;
+                });
+                window.addEventListener('scroll', () => {
+                    const totalHeight = document.body.scrollHeight - window.innerHeight;
+                    this.scrollProgress = window.scrollY / totalHeight;
+                });
+            }
+
+            resize(width, height) {
+                this.scenes.forEach(scene => scene.resize(width, height));
+            }
+
+            update(timestamp) {
+                this.scenes.forEach(scene => scene.update(timestamp, this.mouse));
+            }
+
+            render(ctx, width, height) {
+                this.scenes.forEach((scene, index) => {
+                    const floatIndex = this.scrollProgress * 3;
+                    const dist = Math.abs(floatIndex - index);
+                    let opacity = 1 - dist;
+                    opacity = clamp(opacity, 0, 1);
+                    opacity = opacity * opacity * (3 - 2 * opacity);
+
+                    if (opacity > 0.01) {
+                        ctx.save();
+                        ctx.globalAlpha = opacity;
+                        scene.render(ctx, width, height);
+                        ctx.restore();
+                    }
+                });
+            }
+        }
+
+        class Scene {
+            init(width, height) { }
+            resize(width, height) { }
+            update(time, mouse) { }
+            render(ctx, width, height) { }
+        }
+
+        class UpsideDownScene extends Scene {
+            init(width, height) {
+                this.time = 0;
+            }
+            update(time, mouse) {
+                this.time = time * 0.001;
+            }
+            render(ctx, width, height) {
+                // Background
+                const grad = ctx.createLinearGradient(0, 0, 0, height);
+                grad.addColorStop(0, '#0a0a1a');
+                grad.addColorStop(1, '#000005');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, width, height);
+
+                // Vines - Full Screen Waves
+                ctx.strokeStyle = '#1a1a2e';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+
+                for (let i = 0; i < height; i += 60) {
+                    ctx.moveTo(0, i);
+                    for (let x = 0; x <= width; x += 20) {
+                        const y = i + Math.sin(x * 0.01 + this.time + i * 0.05) * 15;
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.stroke();
+
+                // Spores
+                ctx.fillStyle = 'rgba(200, 220, 255, 0.2)';
+                for (let i = 0; i < 50; i++) {
+                    const sx = (Math.sin(i * 132.1 + this.time) * 0.5 + 0.5) * width;
+                    const sy = (Math.cos(i * 43.2 + this.time * 0.5) * 0.5 + 0.5) * height;
+                    ctx.beginPath();
+                    ctx.arc(sx, sy, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+
+        class MindFlayerScene extends Scene {
+            init(width, height) {
+                this.particles = [];
+                this.count = 1000;
+                for (let i = 0; i < this.count; i++) {
+                    this.particles.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        vx: 0, vy: 0
+                    });
+                }
+            }
+            update(time, mouse) {
+                const t = time * 0.0005;
+                this.particles.forEach(p => {
+                    const angle = (Math.sin(p.x * 0.005 + t) + Math.cos(p.y * 0.005 + t)) * Math.PI * 2;
+                    p.vx += Math.cos(angle) * 0.1;
+                    p.vy += Math.sin(angle) * 0.1;
+
+                    const dx = p.x - mouse.x;
+                    const dy = p.y - mouse.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 200) {
+                        const force = (200 - dist) / 200;
+                        p.vx += (dx / dist) * force * 2;
+                        p.vy += (dy / dist) * force * 2;
+                    }
+
+                    p.vx *= 0.95;
+                    p.vy *= 0.95;
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0) p.x = window.innerWidth;
+                    if (p.x > window.innerWidth) p.x = 0;
+                    if (p.y < 0) p.y = window.innerHeight;
+                    if (p.y > window.innerHeight) p.y = 0;
+                });
+            }
+            render(ctx, width, height) {
+                ctx.fillStyle = '#1a0b2e';
+                ctx.fillRect(0, 0, width, height);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+                this.particles.forEach(p => ctx.fillRect(p.x, p.y, 2, 2));
+            }
+        }
+
+        class StarcourtScene extends Scene {
+            init(width, height) { this.time = 0; }
+            update(time, mouse) { this.time = time * 0.002; }
+            render(ctx, width, height) {
+                const grad = ctx.createLinearGradient(0, 0, 0, height);
+                grad.addColorStop(0, '#000022');
+                grad.addColorStop(1, '#220022');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, width, height);
+
+                const horizon = height / 2;
+                ctx.strokeStyle = '#ff00ff';
+                ctx.lineWidth = 2;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#ff00ff';
+                ctx.beginPath();
+                for (let x = -width; x < width * 2; x += 100) {
+                    ctx.moveTo(width / 2, horizon);
+                    ctx.lineTo(x, height);
+                }
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        class VecnaScene extends Scene {
+            init(width, height) {
+                this.bolts = [];
+                this.lastBoltTime = 0;
+            }
+            update(time, mouse) {
+                this.time = time;
+                if (time - this.lastBoltTime > 500) {
+                    this.createBolt();
+                    this.lastBoltTime = time;
+                }
+                this.bolts.forEach(b => b.opacity -= 0.05);
+                this.bolts = this.bolts.filter(b => b.opacity > 0);
+            }
+            createBolt() {
+                const startX = window.innerWidth / 2;
+                const startY = window.innerHeight / 2;
+                const angle = Math.random() * Math.PI * 2;
+                const len = Math.max(window.innerWidth, window.innerHeight);
+                const points = [];
+                let currX = startX;
+                let currY = startY;
+                for (let i = 0; i < 20; i++) {
+                    points.push({ x: currX, y: currY });
+                    currX += Math.cos(angle) * (len / 20) + (Math.random() - 0.5) * 50;
+                    currY += Math.sin(angle) * (len / 20) + (Math.random() - 0.5) * 50;
+                }
+                this.bolts.push({ points: points, opacity: 1 });
+            }
+            render(ctx, width, height) {
+                const pulse = (Math.sin(this.time * 0.01) + 1) / 2;
+                const grad = ctx.createRadialGradient(width / 2, height / 2, height / 4, width / 2, height / 2, height);
+                grad.addColorStop(0, 'transparent');
+                grad.addColorStop(1, `rgba(100, 0, 0, ${0.5 + pulse * 0.3})`);
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, width, height);
+
+                ctx.strokeStyle = '#ff0000';
+                ctx.shadowColor = '#ff0000';
+                ctx.shadowBlur = 20;
+                ctx.lineWidth = 3;
+                this.bolts.forEach(bolt => {
+                    ctx.globalAlpha = bolt.opacity;
+                    ctx.beginPath();
+                    ctx.moveTo(bolt.points[0].x, bolt.points[0].y);
+                    for (let i = 1; i < bolt.points.length; i++) {
+                        ctx.lineTo(bolt.points[i].x, bolt.points[i].y);
+                    }
+                    ctx.stroke();
+                });
+                ctx.globalAlpha = 1;
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        const engine = new RenderEngine();
+
+        // Welcome Screen Logic
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const enterBtn = document.getElementById('enter-btn');
+        const mainContent = document.querySelector('main');
+
+        enterBtn.addEventListener('click', () => {
+            // 1. Audio (Placeholder)
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.5);
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.5);
+
+            // 2. Fade Out Welcome Screen
+            welcomeScreen.style.opacity = '0';
+
+            // 3. Fade In Main Content
+            mainContent.style.opacity = '1';
+
+            // 4. Cleanup and Trigger Text Reveal
+            setTimeout(() => {
+                welcomeScreen.style.display = 'none';
+
+                // Trigger Season 1 Text Reveal
+                const s1Text = document.querySelector('#season-1 .scramble-text');
+                if (s1Text) {
+                    // Reset if it already ran
+                    s1Text.dataset.scrambled = 'false';
+                    const fx = new TextScramble(s1Text);
+                    fx.setText(s1Text.innerText);
+                    s1Text.dataset.scrambled = 'true';
+                }
+            }, 2000);
+        });
+    </script>
+</body>
+
+</html>
