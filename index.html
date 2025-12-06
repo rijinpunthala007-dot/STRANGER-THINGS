@@ -377,13 +377,24 @@
 
             /* Responsive Hero */
             .hero-section {
-                height: 60vh;
-                /* Reduced height for better content visibility */
+                min-height: 50vh;
+                /* Compact height for "Above Fold" */
+                height: auto;
                 background-attachment: scroll !important;
-                /* Fix iOS jitter */
-                padding: 1rem;
+                padding: 1rem 1rem 2rem 1rem;
+                /* Breathing room */
                 justify-content: center;
-                align-items: flex-start;
+                align-items: center;
+                /* Center content vertically */
+                background-position: center top !important;
+            }
+
+            /* Compact Spacing for Season Tabs */
+            .season-selector {
+                margin-top: 0;
+                /* Reset desktop negative overlap */
+                padding-top: 0;
+                padding-bottom: 1rem;
             }
 
             .hero-content {
