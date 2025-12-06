@@ -8,15 +8,19 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Inter:wght@400;800&family=Rubik+Glitch&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Helvetica:wght@400;700&family=Rubik+Glitch&display=swap"
         rel="stylesheet">
     <style>
         :root {
-            --font-display: 'Rubik Glitch', cursive;
-            --font-terminal: 'Courier Prime', monospace;
-            --color-bg: #050505;
-            --color-text: #e0e0e0;
-            --color-accent: #ff0000;
+            --color-bg: #141414;
+            --color-bg-dark: #000000;
+            --color-netflix-red: #E50914;
+            --color-neon-red: #FF0000;
+            --color-text: #ffffff;
+            --color-text-secondary: #a3a3a3;
+            --font-title: 'Merriweather', serif;
+            --font-ui: 'Helvetica', 'Arial', sans-serif;
+            --font-glitch: 'Rubik Glitch', cursive;
         }
 
         * {
@@ -24,42 +28,14 @@
             padding: 0;
             box-sizing: border-box;
             cursor: none;
-            /* Custom cursor */
+            /* Custom cursor everywhere */
         }
 
         body {
             background-color: var(--color-bg);
             color: var(--color-text);
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-ui);
             overflow-x: hidden;
-            transition: background-color 1s ease;
-        }
-
-        /* --- BODY STATES (for transitions) --- */
-        body.state-s1 {
-            background-color: #050505;
-        }
-
-        body.state-s2 {
-            background-color: #1a0b2e;
-        }
-
-        body.state-s3 {
-            background-color: #000022;
-        }
-
-        body.state-s4 {
-            background-color: #2b0000;
-        }
-
-        /* --- CANVAS BACKGROUND --- */
-        #world-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
         }
 
         /* --- CUSTOM CURSOR --- */
@@ -69,803 +45,589 @@
             left: 0;
             pointer-events: none;
             z-index: 10000;
-            mix-blend-mode: difference;
+            mix-blend-mode: normal;
         }
 
         .cursor-visual {
             width: 20px;
             height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.8);
             border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 0, 0, 0.8) 0%, rgba(255, 0, 0, 0) 70%);
+            box-shadow: 0 0 15px var(--color-neon-red), inset 0 0 5px var(--color-neon-red);
             transform: translate(-50%, -50%);
-            transition: width 0.2s, height 0.2s, background-color 0.2s;
+            transition: transform 0.1s ease;
         }
 
-        /* Cursor States */
-        body.state-s1 .cursor-visual {
-            background-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        button:hover~#cursor-container .cursor-visual,
+        .episode-card:hover~#cursor-container .cursor-visual,
+        .tab-btn:hover~#cursor-container .cursor-visual,
+        a:hover~#cursor-container .cursor-visual {
+            transform: translate(-50%, -50%) scale(1.5);
+            background: rgba(229, 9, 20, 0.5);
         }
 
-        body.state-s2 .cursor-visual {
-            width: 40px;
-            height: 40px;
-            border-color: #ff0000;
-            background-color: rgba(255, 0, 0, 0.1);
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
-            animation: pulse-red 2s infinite;
+        /* --- MAIN LAYOUT --- */
+        main {
+            display: block;
+            opacity: 1;
         }
 
-        @keyframes pulse-red {
-
-            0%,
-            100% {
-                transform: translate(-50%, -50%) scale(1);
-            }
-
-            50% {
-                transform: translate(-50%, -50%) scale(1.1);
-            }
-        }
-
-        body.state-s3 .cursor-visual {
-            width: 15px;
-            height: 15px;
-            border-radius: 0;
-            border-color: #00ffff;
-            background-color: transparent;
-            transform: translate(-50%, -50%) rotate(45deg);
-            animation: spin-neon 3s linear infinite;
-        }
-
-        @keyframes spin-neon {
-            0% {
-                transform: translate(-50%, -50%) rotate(45deg);
-                border-color: #00ffff;
-                box-shadow: 0 0 10px #00ffff;
-            }
-
-            50% {
-                border-color: #ffffff;
-                box-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff;
-            }
-
-            100% {
-                transform: translate(-50%, -50%) rotate(405deg);
-                border-color: #00ffff;
-                box-shadow: 0 0 10px #00ffff;
-            }
-        }
-
-        body.state-s4 .cursor-visual {
-            width: 30px;
-            height: 40px;
-            background: #8a0303;
-            box-shadow: 0 0 15px #ff0000;
-            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-            animation: nervous-twitch 0.15s infinite;
-        }
-
-        @keyframes nervous-twitch {
-            0% {
-                transform: translate(-50%, -50%) translate(1px, 1px) scale(1);
-            }
-
-            25% {
-                transform: translate(-50%, -50%) translate(-2px, -2px) scale(1.05);
-            }
-
-            50% {
-                transform: translate(-50%, -50%) translate(2px, -1px) scale(0.95);
-            }
-
-            75% {
-                transform: translate(-50%, -50%) translate(-1px, 2px) scale(1.02);
-            }
-
-            100% {
-                transform: translate(-50%, -50%) translate(1px, 1px) scale(1);
-            }
-        }
-
-        /* --- WELCOME SCREEN --- */
-        #welcome-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
+        /* HERO SECTION */
+        .hero-section {
+            height: 70vh;
             width: 100%;
-            height: 100%;
-            z-index: 9999;
-            background-color: #000;
+            position: relative;
+            background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 50%, #141414 100%), url('strangererr.jpg');
+            background-size: cover;
+            background-position: center top;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
-            transition: opacity 2s ease-in-out;
+            justify-content: flex-start;
+            padding: 0 5%;
         }
 
-        #welcome-screen::before {
+        .hero-section::after {
             content: '';
             position: absolute;
-            top: 0;
+            bottom: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            box-shadow: inset 0 0 150px rgba(255, 0, 0, 0.5);
-            animation: heartbeat 4s infinite ease-in-out;
-            pointer-events: none;
+            height: 150px;
+            background: linear-gradient(to top, #141414, transparent);
         }
 
-        @keyframes heartbeat {
+
+        .hero-content {
+            z-index: 2;
+            max-width: 600px;
+        }
+
+        .hero-title {
+            font-family: 'Merriweather', serif;
+            font-size: 5rem;
+            font-weight: 900;
+            color: #E50914;
+            -webkit-text-stroke: 2px #ff0000;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0);
+            margin-bottom: 1rem;
+            line-height: 0.9;
+            opacity: 0;
+            animation: strangerReveal 3.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards, neonHeartbeat 3s infinite 3.5s;
+        }
+
+        @keyframes strangerReveal {
+            0% {
+                opacity: 0;
+                transform: scale(1.2);
+                letter-spacing: 0.5em;
+                filter: blur(10px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+                letter-spacing: -0.05em;
+                filter: blur(0px);
+            }
+        }
+
+        @keyframes neonHeartbeat {
 
             0%,
             100% {
-                opacity: 0.1;
+                text-shadow: 0 0 10px rgba(229, 9, 20, 0.4);
             }
 
             50% {
-                opacity: 0.4;
+                text-shadow: 0 0 30px rgba(255, 0, 0, 0.8), 0 0 60px rgba(255, 0, 0, 0.4);
             }
         }
 
-        #welcome-screen h1 {
-            font-family: var(--font-display);
-            font-size: 6rem;
-            color: #ff0000;
-            text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
-            margin-bottom: 0.5rem;
-            animation: neon-flicker 3s infinite alternate;
+        .hero-synopsis {
+            margin-bottom: 2rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+            line-height: 1.5;
         }
 
-        #welcome-screen h2 {
-            font-family: var(--font-terminal);
-            font-size: 1.5rem;
-            color: #fff;
-            letter-spacing: 2px;
-            margin-bottom: 3rem;
-            opacity: 0.8;
-        }
-
-        #enter-btn {
-            background: transparent;
-            border: 2px solid #ff0000;
-            color: #ff0000;
-            font-family: var(--font-terminal);
+        .btn-primary {
+            background-color: var(--color-netflix-red);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
             font-size: 1.2rem;
-            padding: 1rem 2rem;
-            cursor: pointer !important;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
-            position: relative;
-            z-index: 10001;
-            /* Ensure clickable */
+            font-weight: bold;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            cursor: none;
+            transition: transform 0.2s, background-color 0.2s;
+            text-decoration: none;
         }
 
-        #enter-btn:hover {
-            background: rgba(255, 0, 0, 0.1);
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+        .btn-primary:hover {
+            background-color: #f40612;
             transform: scale(1.05);
         }
 
-        @keyframes neon-flicker {
-
-            0%,
-            19%,
-            21%,
-            23%,
-            25%,
-            54%,
-            56%,
-            100% {
-                opacity: 1;
-                text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
-            }
-
-            20%,
-            24%,
-            55% {
-                opacity: 0.5;
-                text-shadow: none;
-            }
+        .btn-icon-arrow::after {
+            content: '>';
+            font-weight: 900;
         }
 
-        /* --- CONTENT OVERLAY --- */
-        main {
+        /* SEASON SELECTOR */
+        .season-selector {
+            padding: 2rem 5%;
+            margin-top: -3rem;
             position: relative;
             z-index: 10;
-            pointer-events: none;
-            opacity: 0;
-            /* Hidden initially */
-            transition: opacity 2s ease-in-out;
-        }
-
-        section {
-            height: 100vh;
             display: flex;
-            flex-direction: column;
             justify-content: center;
+        }
+
+        .tabs-header {
+            display: flex;
+            gap: 1.5rem;
+            border-bottom: none;
+            margin-bottom: 2rem;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0.5rem;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 0.8rem 2rem;
+            cursor: pointer;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            border-color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-btn.active {
+            background-color: #E50914;
+            border-color: #E50914;
+            color: white;
+            box-shadow: 0 0 20px rgba(229, 9, 20, 0.6);
+            border-bottom: 1px solid #E50914;
+        }
+
+        .tab-btn.active::after {
+            display: none;
+        }
+
+        /* EPISODE GRID */
+        .platform-grid {
+            padding: 0 5% 4rem 5%;
+        }
+
+        .episode-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            animation: fadeIn 0.5s ease-out;
+            perspective: 1000px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .episode-card {
+            background: linear-gradient(180deg, rgba(30, 30, 30, 0.6) 0%, rgba(10, 10, 10, 0.9) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.5s ease-out, border-color 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            display: block;
+            backdrop-filter: blur(5px);
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
+            position: relative;
+        }
+
+        .episode-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, 0.4) 38%, transparent 45%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .episode-card:hover {
+            transform: translateY(-5px);
+            border-color: #E50914;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+            z-index: 5;
+        }
+
+        .thumbnail-wrapper {
+            position: relative;
+            aspect-ratio: 16/9;
+            overflow: hidden;
+            border-radius: 4px;
+            /* Optional, but nice */
+            margin-bottom: 12px;
+        }
+
+        .thumb-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease-out, filter 0.3s ease-out;
+        }
+
+        /* Cinematic Focus Hover Effects */
+        .episode-card {
+            transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .episode-card:hover {
+            transform: translateY(-5px);
+            border-color: #E50914;
+            box-shadow: 0 10px 30px -10px rgba(229, 9, 20, 0.5);
+            z-index: 5;
+        }
+
+        .episode-card:hover .thumb-img {
+            transform: scale(1.05);
+            filter: brightness(1.15) contrast(1.1);
+        }
+
+        .episode-card:hover .episode-title {
+            color: #E50914;
+            transition: color 0.3s;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .episode-meta {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            text-align: center;
-            padding: 2rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+            margin-bottom: 0.8rem;
         }
 
-        h1,
-        h2 {
-            font-family: var(--font-display);
-            text-transform: uppercase;
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            pointer-events: auto;
-        }
-
-        p {
-            font-family: var(--font-terminal);
-            font-size: 1.3rem;
-            max-width: 700px;
-            pointer-events: auto;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 1), 0 0 20px rgba(0, 0, 0, 0.8);
-            line-height: 1.6;
-            margin-top: 1rem;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .scroll-indicator {
-            position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            font-family: var(--font-terminal);
+        .episode-number {
             font-size: 0.8rem;
-            opacity: 0.5;
-            animation: bounce 2s infinite;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #aaa;
+            font-weight: 600;
         }
 
-        @keyframes bounce {
-
-            0%,
-            20%,
-            50%,
-            80%,
-            100% {
-                transform: translateX(-50%) translateY(0);
-            }
-
-            40% {
-                transform: translateX(-50%) translateY(-10px);
-            }
-
-            60% {
-                transform: translateX(-50%) translateY(-5px);
-            }
+        .episode-duration {
+            font-size: 0.8rem;
+            color: #aaa;
         }
 
-        /* --- MOBILE OPTIMIZATION --- */
+        .episode-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 0.6rem;
+            color: white;
+        }
+
+        .episode-desc {
+            font-size: 0.9rem;
+            color: #888;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* MOBILE OPTIMIZATION */
         @media (max-width: 768px) {
-
-            /* Typography Scaling */
-            h1 {
-                font-size: 2.5rem !important;
-            }
-
-            h2 {
-                font-size: 1rem !important;
-            }
-
-            p {
-                font-size: 1rem !important;
-                padding: 0 1rem;
-            }
-
-            /* Welcome Screen Adjustments */
-            #welcome-screen h1 {
-                font-size: 3rem;
-                text-align: center;
-                line-height: 1.1;
-            }
-
-            #welcome-screen h2 {
-                font-size: 1rem;
-                margin-bottom: 2rem;
-                text-align: center;
-            }
-
-            #enter-btn {
-                padding: 0.8rem 1.5rem;
-                font-size: 1rem;
-            }
-
-            /* Hide Custom Cursor on Touch Devices */
             #cursor-container {
                 display: none !important;
             }
 
-            * {
-                cursor: auto !important;
+            .platform-grid {
+                padding: 1.5rem;
             }
 
-            /* Layout Adjustments */
-            section {
-                padding: 1rem;
+            /* Responsive Hero */
+            .hero-section {
+                height: 60vh;
+                padding: 1.5rem;
+                justify-content: center;
+                /* Center content on mobile */
+                align-items: flex-start;
             }
 
-            .scroll-indicator {
-                font-size: 0.7rem;
-                bottom: 1rem;
+            .hero-content {
+                max-width: 100%;
+                margin-bottom: 2rem;
+            }
+
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            .hero-synopsis {
+                width: 100%;
+                font-size: 1rem;
+                display: -webkit-box;
+                -webkit-line-clamp: 3;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            /* Responsive Tabs */
+            .tabs-header {
+                justify-content: flex-start;
+                padding-bottom: 10px;
+                overflow-x: auto;
+                white-space: nowrap;
+                gap: 1rem;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                /* Firefox */
+            }
+
+            .tabs-header::-webkit-scrollbar {
+                display: none;
+                /* Chrome/Safari */
+            }
+
+            .tab-btn {
+                flex-shrink: 0;
+            }
+
+            /* Responsive Grid */
+            .episode-grid {
+                grid-template-columns: 1fr;
+                /* Single column */
+                gap: 1.5rem;
+                perspective: none;
+                /* Disable 3D space on mobile */
+            }
+
+            /* Disable 3D Tilt Styles on Mobile */
+            .episode-card {
+                transform: none !important;
+                transition: transform 0.2s ease;
+                /* Simple scale only */
+            }
+
+            .episode-card:hover {
+                transform: scale(1.02) !important;
+                background: linear-gradient(180deg, rgba(30, 30, 30, 1) 0%, rgba(10, 10, 10, 1) 100%);
+            }
+
+            /* Disable glare on mobile */
+            .episode-card::after {
+                display: none;
             }
         }
     </style>
 </head>
 
-<body class="state-s1">
+<body>
 
-    <div id="welcome-screen">
-        <h1>STRANGER THINGS</h1>
-        <h2>THE INTERACTIVE CHRONICLE</h2>
-        <button id="enter-btn">ENTER HAWKINS</button>
-    </div>
+    <!-- MAIN APP -->
+    <main id="main-app">
+        <section class="hero-section">
+            <div class="hero-content">
+                <div class="hero-title">STRANGER THINGS</div>
+                <p class="hero-synopsis">
+                    When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying
+                    supernatural forces, and one strange little girl.
+                </p>
+                <a href="https://www.netflix.com/title/80057281" target="_blank" class="btn-primary">
+                    WATCH SEASON 5
+                </a>
+            </div>
+        </section>
 
-    <canvas id="world-canvas"></canvas>
+        <section class="season-selector">
+            <div class="tabs-header" id="tabs-container">
+                <!-- Tabs Injected via JS -->
+            </div>
+        </section>
+
+        <section class="platform-grid">
+            <div id="episodes-container" class="episode-grid">
+                <!-- Episodes Injected via JS -->
+            </div>
+        </section>
+    </main>
+
+    <!-- CURSOR -->
     <div id="cursor-container">
         <div class="cursor-visual"></div>
     </div>
 
-    <main>
-        <section id="season-1">
-            <h1>The Upside Down</h1>
-            <p class="scramble-text">November 1983. Will Byers vanishes into the Upside Down. A telekinetic girl named
-                Eleven arrives. Friends unite to fight the Demogorgon and uncover a government conspiracy.</p>
-        </section>
-        <section id="season-2">
-            <h1>The Mind Flayer</h1>
-            <p class="scramble-text">October 1984. The Mind Flayer looms over Hawkins in a storm of shadows. Will is
-                possessed by the hive mind. Eleven returns to close the gate before the darkness takes over.</p>
-        </section>
-        <section id="season-3">
-            <h1>Starcourt Mall</h1>
-            <p class="scramble-text">Summer 1985. The Starcourt Mall opens, hiding a secret Russian base beneath. The
-                Mind Flayer returns to build a physical body. Billy is lost. The Battle of Starcourt begins.</p>
-        </section>
-        <section id="season-4">
-            <h1>Vecna's Curse</h1>
-            <p class="scramble-text">Spring 1986. A new horror named Vecna strikes from the Upside Down, targeting
-                trauma. The gang splits between Hawkins, California, and Russia. Max runs up that hill. War is coming.
-            </p>
-        </section>
-    </main>
-
-    <div class="scroll-indicator">SCROLL TO EXPLORE</div>
-
     <script>
-        const lerp = (start, end, t) => start * (1 - t) + end * t;
-        const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
-        const mapRange = (value, inMin, inMax, outMin, outMax) => (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
-        const random = (min, max) => Math.random() * (max - min) + min;
+        // --- DATA ---
+        const seasonsData = {
+            1: [
+                { id: 's1e1', title: "The Vanishing of Will Byers", desc: "A young boy goes missing.", number: "Chapter One" },
+                { id: 's1e2', title: "The Weirdo on Maple Street", desc: "A girl with powers appears.", number: "Chapter Two" },
+                { id: 's1e3', title: "Holly, Jolly", desc: "Lights communicate from the other side.", number: "Chapter Three" },
+            ],
+            2: [
+                { id: 's2e1', title: "MADMAX", desc: "A new girl arrives in Hawkins.", number: "Chapter One" },
+                { id: 's2e9', title: "The Gate", desc: "Eleven closes the rift.", number: "Chapter Nine" },
+            ],
+            3: [
+                { id: 's3e1', title: "Suzie, Do You Copy?", desc: "Summer begins at Starcourt Mall.", number: "Chapter One" },
+                { id: 's3e8', title: "The Battle of Starcourt", desc: "The Mind Flayer attacks.", number: "Chapter Eight" },
+            ],
+            4: [
+                { id: 's4e1', title: "The Hellfire Club", desc: "A new D&D campaign begins.", number: "Chapter One" },
+                { id: 's4e9', title: "The Piggyback", desc: "Metal Master of Puppets.", number: "Chapter Nine" },
+            ]
+        };
 
-        class TextScramble {
-            constructor(el) {
-                this.el = el;
-                this.chars = '!<>-_\\/[]{}—=+*^?#________';
-                this.update = this.update.bind(this);
-            }
-
-            setText(newText) {
-                const oldText = this.el.innerText;
-                const length = Math.max(oldText.length, newText.length);
-                const promise = new Promise((resolve) => this.resolve = resolve);
-                this.queue = [];
-                for (let i = 0; i < length; i++) {
-                    const from = oldText[i] || '';
-                    const to = newText[i] || '';
-                    const start = Math.floor(Math.random() * 40);
-                    const end = start + Math.floor(Math.random() * 40);
-                    this.queue.push({ from, to, start, end });
-                }
-                cancelAnimationFrame(this.frameRequest);
-                this.frame = 0;
-                this.update();
-                return promise;
-            }
-
-            update() {
-                let output = '';
-                let complete = 0;
-                for (let i = 0, n = this.queue.length; i < n; i++) {
-                    let { from, to, start, end, char } = this.queue[i];
-                    if (this.frame >= end) {
-                        complete++;
-                        output += to;
-                    } else if (this.frame >= start) {
-                        if (!char || Math.random() < 0.28) {
-                            char = this.randomChar();
-                            this.queue[i].char = char;
-                        }
-                        output += `<span class="dud">${char}</span>`;
-                    } else {
-                        output += from;
-                    }
-                }
-                this.el.innerHTML = output;
-                if (complete === this.queue.length) {
-                    this.resolve();
-                } else {
-                    this.frameRequest = requestAnimationFrame(this.update);
-                    this.frame++;
-                }
-            }
-
-            randomChar() {
-                return this.chars[Math.floor(Math.random() * this.chars.length)];
-            }
-        }
-
-        class RenderEngine {
+        // --- TAB MANAGER ---
+        class TabManager {
             constructor() {
-                this.canvas = document.getElementById('world-canvas');
-                this.ctx = this.canvas.getContext('2d', { alpha: false });
-                this.width = window.innerWidth;
-                this.height = window.innerHeight;
-                this.pixelRatio = Math.min(window.devicePixelRatio, 2);
-
-                this.resize();
-                window.addEventListener('resize', () => this.resize());
-
-                this.sceneManager = new SceneManager(this.width, this.height);
-
-                this.cursorContainer = document.getElementById('cursor-container');
-                this.cursorX = window.innerWidth / 2;
-                this.cursorY = window.innerHeight / 2;
-                this.mouseX = this.cursorX;
-                this.mouseY = this.cursorY;
-
-                window.addEventListener('mousemove', e => {
-                    this.mouseX = e.clientX;
-                    this.mouseY = e.clientY;
-                });
-
-                this.initObserver();
-                this.initTextScramble();
-                this.loop = this.loop.bind(this);
-                requestAnimationFrame(this.loop);
+                this.activeSeason = 1;
+                this.tabsContainer = document.getElementById('tabs-container');
+                this.episodesContainer = document.getElementById('episodes-container');
+                this.renderTabs();
+                this.renderEpisodes(this.activeSeason);
             }
 
-            initObserver() {
-                const options = { root: null, threshold: 0.5 };
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            const seasonId = entry.target.id.split('-')[1];
-                            document.body.className = `state-s${seasonId}`;
-                        }
+            renderTabs() {
+                this.tabsContainer.innerHTML = '';
+                [1, 2, 3, 4].forEach(season => {
+                    const btn = document.createElement('button');
+                    btn.classList.add('tab-btn');
+                    if (season === this.activeSeason) btn.classList.add('active');
+                    btn.innerText = `SEASON ${season}`;
+                    btn.onclick = () => this.switchSeason(season);
+                    this.tabsContainer.appendChild(btn);
+                });
+            }
+
+            switchSeason(season) {
+                this.activeSeason = season;
+                // Update Buttons
+                const buttons = this.tabsContainer.querySelectorAll('.tab-btn');
+                buttons.forEach((btn, index) => {
+                    if (index + 1 === season) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                });
+                // Update Grid
+                this.renderEpisodes(season);
+            }
+
+            renderEpisodes(season) {
+                const episodes = seasonsData[season];
+                this.episodesContainer.innerHTML = '';
+
+                episodes.forEach(ep => {
+                    const card = document.createElement('a');
+                    card.href = "https://www.netflix.com/title/80057281";
+                    card.target = "_blank";
+                    card.className = "episode-card";
+                    card.innerHTML = `
+                        <div class="thumbnail-wrapper">
+                           <img src="https://image.tmdb.org/t/p/w500/x2LSRK2Cm7MZhjluni1msVJ3wDF.jpg" class="thumb-img" alt="Episode Thumbnail">
+                        </div>
+                        <div class="card-content">
+                            <div class="episode-meta">
+                                <span class="episode-number">${ep.number}</span>
+                                <span class="episode-duration">50m</span>
+                            </div>
+                            <div class="episode-title">${ep.title}</div>
+                            <div class="episode-desc">${ep.desc}</div>
+                        </div>
+                    `;
+                    this.episodesContainer.appendChild(card);
+                });
+
+                // Trigger reflow for animation
+                this.episodesContainer.style.animation = 'none';
+                this.episodesContainer.offsetHeight; /* trigger reflow */
+                this.episodesContainer.style.animation = 'fadeIn 0.5s ease-out';
+
+                this.attachTiltEffects();
+            }
+
+            attachTiltEffects() {
+                const cards = this.episodesContainer.querySelectorAll('.episode-card');
+
+                // Optimization: Don't attach physics if touch device or mobile
+                const isTouch = window.matchMedia('(pointer: coarse)').matches;
+                if (isTouch) return;
+
+                cards.forEach(card => {
+                    card.addEventListener('mousemove', (e) => {
+                        // Double check in case of hybrid devices/resize
+                        if (window.innerWidth <= 768) return;
+
+                        const rect = card.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        const w = rect.width;
+                        const h = rect.height;
+
+                        const rotateY = ((x / w) - 0.5) * 20; // -10 to 10 deg
+                        const rotateX = ((y / h) - 0.5) * -20; // 10 to -10 deg
+
+                        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+                        // Fast transition for responsive feel
+                        card.style.transition = 'transform 0.1s ease-out, border-color 0.3s, box-shadow 0.3s';
+
+                        // Glare opacity is handled by CSS :hover
                     });
-                }, options);
-                document.querySelectorAll('section').forEach(section => observer.observe(section));
-            }
 
-            initTextScramble() {
-                const options = { threshold: 0.5 };
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            const p = entry.target.querySelector('.scramble-text');
-                            if (p && !p.dataset.scrambled) {
-                                const fx = new TextScramble(p);
-                                fx.setText(p.innerText);
-                                p.dataset.scrambled = 'true';
-                            }
-                        }
+                    card.addEventListener('mouseleave', () => {
+                        if (window.innerWidth <= 768) return;
+
+                        // Reset
+                        card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+                        // Slow transition for smooth return
+                        card.style.transition = 'transform 0.5s ease-out, border-color 0.3s, box-shadow 0.3s';
                     });
-                }, options);
-                document.querySelectorAll('section').forEach(section => observer.observe(section));
-            }
-
-            resize() {
-                this.width = window.innerWidth;
-                this.height = window.innerHeight;
-                this.canvas.width = this.width * this.pixelRatio;
-                this.canvas.height = this.height * this.pixelRatio;
-                this.ctx.scale(this.pixelRatio, this.pixelRatio);
-                if (this.sceneManager) this.sceneManager.resize(this.width, this.height);
-            }
-
-            loop(timestamp) {
-                this.ctx.fillStyle = '#050505';
-                this.ctx.fillRect(0, 0, this.width, this.height);
-                this.sceneManager.update(timestamp);
-                this.sceneManager.render(this.ctx, this.width, this.height);
-
-                this.cursorX = lerp(this.cursorX, this.mouseX, 0.1);
-                this.cursorY = lerp(this.cursorY, this.mouseY, 0.1);
-                this.cursorContainer.style.transform = `translate3d(${this.cursorX}px, ${this.cursorY}px, 0)`;
-
-                requestAnimationFrame(this.loop);
-            }
-        }
-
-        class SceneManager {
-            constructor(width, height) {
-                this.scrollProgress = 0;
-                this.scenes = [
-                    new UpsideDownScene(),
-                    new MindFlayerScene(),
-                    new StarcourtScene(),
-                    new VecnaScene()
-                ];
-                this.scenes.forEach(scene => scene.init(width, height));
-                this.mouse = { x: width / 2, y: height / 2 };
-                window.addEventListener('mousemove', e => {
-                    this.mouse.x = e.clientX;
-                    this.mouse.y = e.clientY;
-                });
-                window.addEventListener('scroll', () => {
-                    this.scrollProgress = window.scrollY / (document.body.scrollHeight - window.innerHeight);
-                });
-            }
-
-            resize(width, height) {
-                this.scenes.forEach(scene => scene.resize(width, height));
-            }
-
-            update(time) {
-                this.scenes.forEach(scene => scene.update(time, this.mouse));
-            }
-
-            render(ctx, width, height) {
-                const totalScenes = this.scenes.length;
-                const sceneIndex = this.scrollProgress * (totalScenes - 1);
-                const currentSceneIdx = Math.floor(sceneIndex);
-                const nextSceneIdx = Math.min(currentSceneIdx + 1, totalScenes - 1);
-                const progress = sceneIndex - currentSceneIdx;
-
-                this.scenes.forEach((scene, index) => {
-                    let opacity = 0;
-                    if (index === currentSceneIdx) opacity = 1 - progress;
-                    else if (index === nextSceneIdx) opacity = progress;
-
-                    // Smooth transition
-                    opacity = opacity * opacity * (3 - 2 * opacity);
-
-                    if (opacity > 0.01) {
-                        ctx.save();
-                        ctx.globalAlpha = opacity;
-                        scene.render(ctx, width, height);
-                        ctx.restore();
-                    }
                 });
             }
         }
 
-        class Scene {
-            init(width, height) { }
-            resize(width, height) { }
-            update(time, mouse) { }
-            render(ctx, width, height) { }
-        }
+        // --- APP INIT ---
+        document.addEventListener('DOMContentLoaded', () => {
 
-        class UpsideDownScene extends Scene {
-            init(width, height) {
-                this.time = 0;
-            }
+            // Cursor Logic
+            const cursor = document.getElementById('cursor-container');
+            const visual = cursor.querySelector('.cursor-visual');
 
-            update(time, mouse) {
-                this.time = time * 0.001;
-            }
+            document.addEventListener('mousemove', (e) => {
+                visual.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+            });
 
-            render(ctx, width, height) {
-                // Background
-                const grad = ctx.createLinearGradient(0, 0, 0, height);
-                grad.addColorStop(0, '#0a0a1a');
-                grad.addColorStop(1, '#000005');
-                ctx.fillStyle = grad;
-                ctx.fillRect(0, 0, width, height);
-
-                // Vines - Full Screen Waves
-                ctx.strokeStyle = '#1a1a2e';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                for (let i = 0; i < height; i += 60) {
-                    ctx.moveTo(0, i);
-                    for (let x = 0; x <= width; x += 20) {
-                        const y = i + Math.sin(x * 0.01 + this.time + i * 0.05) * 15;
-                        ctx.lineTo(x, y);
-                    }
-                }
-                ctx.stroke();
-
-                // Spores
-                ctx.fillStyle = 'rgba(200, 220, 255, 0.2)';
-                for (let i = 0; i < 50; i++) {
-                    const sx = (Math.sin(i * 132.1 + this.time) * 0.5 + 0.5) * width;
-                    const sy = (Math.cos(i * 43.2 + this.time * 0.5) * 0.5 + 0.5) * height;
-                    ctx.beginPath();
-                    ctx.arc(sx, sy, 2, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-        }
-
-        class MindFlayerScene extends Scene {
-            init(width, height) {
-                this.particles = [];
-                this.count = 1000;
-                for (let i = 0; i < this.count; i++) {
-                    this.particles.push({
-                        x: Math.random() * width,
-                        y: Math.random() * height,
-                        vx: 0, vy: 0
-                    });
-                }
-            }
-
-            update(time, mouse) {
-                const t = time * 0.0005;
-                this.particles.forEach(p => {
-                    const angle = (Math.sin(p.x * 0.005 + t) + Math.cos(p.y * 0.005 + t)) * Math.PI * 2;
-                    p.vx += Math.cos(angle) * 0.1;
-                    p.vy += Math.sin(angle) * 0.1;
-
-                    const dx = p.x - mouse.x;
-                    const dy = p.y - mouse.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 200) {
-                        const force = (200 - dist) / 200;
-                        p.vx += (dx / dist) * force * 2;
-                        p.vy += (dy / dist) * force * 2;
-                    }
-
-                    p.vx *= 0.95;
-                    p.vy *= 0.95;
-                    p.x += p.vx;
-                    p.y += p.vy;
-
-                    if (p.x < 0) p.x = window.innerWidth;
-                    if (p.x > window.innerWidth) p.x = 0;
-                    if (p.y < 0) p.y = window.innerHeight;
-                    if (p.y > window.innerHeight) p.y = 0;
-                });
-            }
-
-            render(ctx, width, height) {
-                ctx.fillStyle = '#1a0b2e';
-                ctx.fillRect(0, 0, width, height);
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-                this.particles.forEach(p => ctx.fillRect(p.x, p.y, 2, 2));
-            }
-        }
-
-        class StarcourtScene extends Scene {
-            init(width, height) {
-                this.time = 0;
-            }
-
-            update(time, mouse) {
-                this.time = time * 0.002;
-            }
-
-            render(ctx, width, height) {
-                const grad = ctx.createLinearGradient(0, 0, 0, height);
-                grad.addColorStop(0, '#000022');
-                grad.addColorStop(1, '#220022');
-                ctx.fillStyle = grad;
-                ctx.fillRect(0, 0, width, height);
-
-                const horizon = height / 2;
-                ctx.strokeStyle = '#ff00ff';
-                ctx.lineWidth = 2;
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = '#ff00ff';
-                ctx.beginPath();
-                for (let x = -width; x < width * 2; x += 100) {
-                    ctx.moveTo(width / 2, horizon);
-                    ctx.lineTo(x, height);
-                }
-                ctx.stroke();
-                ctx.shadowBlur = 0;
-            }
-        }
-
-        class VecnaScene extends Scene {
-            init(width, height) {
-                this.bolts = [];
-                this.lastBoltTime = 0;
-            }
-
-            update(time, mouse) {
-                this.time = time;
-                if (time - this.lastBoltTime > 500) {
-                    this.createBolt();
-                    this.lastBoltTime = time;
-                }
-                this.bolts.forEach(b => b.opacity -= 0.05);
-                this.bolts = this.bolts.filter(b => b.opacity > 0);
-            }
-
-            createBolt() {
-                const startX = window.innerWidth / 2;
-                const startY = window.innerHeight / 2;
-                const angle = Math.random() * Math.PI * 2;
-                const len = Math.max(window.innerWidth, window.innerHeight);
-                const points = [];
-                let currX = startX;
-                let currY = startY;
-                for (let i = 0; i < 20; i++) {
-                    points.push({ x: currX, y: currY });
-                    currX += Math.cos(angle) * (len / 20) + (Math.random() - 0.5) * 50;
-                    currY += Math.sin(angle) * (len / 20) + (Math.random() - 0.5) * 50;
-                }
-                this.bolts.push({ points: points, opacity: 1 });
-            }
-
-            render(ctx, width, height) {
-                const pulse = (Math.sin(this.time * 0.01) + 1) / 2;
-                const grad = ctx.createRadialGradient(width / 2, height / 2, height / 4, width / 2, height / 2, height);
-                grad.addColorStop(0, 'transparent');
-                grad.addColorStop(1, `rgba(100, 0, 0, ${0.5 + pulse * 0.3})`);
-                ctx.fillStyle = grad;
-                ctx.fillRect(0, 0, width, height);
-
-                ctx.strokeStyle = '#ff0000';
-                ctx.shadowColor = '#ff0000';
-                ctx.shadowBlur = 20;
-                ctx.lineWidth = 3;
-
-                this.bolts.forEach(bolt => {
-                    ctx.globalAlpha = bolt.opacity;
-                    ctx.beginPath();
-                    ctx.moveTo(bolt.points[0].x, bolt.points[0].y);
-                    for (let i = 1; i < bolt.points.length; i++) {
-                        ctx.lineTo(bolt.points[i].x, bolt.points[i].y);
-                    }
-                    ctx.stroke();
-                });
-                ctx.globalAlpha = 1;
-                ctx.shadowBlur = 0;
-            }
-        }
-
-        const engine = new RenderEngine();
-
-        // Welcome Screen Logic
-        const welcomeScreen = document.getElementById('welcome-screen');
-        const enterBtn = document.getElementById('enter-btn');
-        const mainContent = document.querySelector('main');
-
-        enterBtn.addEventListener('click', () => {
-            // 1. Audio (Placeholder)
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.5);
-            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + 0.5);
-
-            // 2. Fade Out Welcome Screen
-            welcomeScreen.style.opacity = '0';
-
-            // 3. Fade In Main Content
-            mainContent.style.opacity = '1';
-
-            // 4. Cleanup and Trigger Text Reveal
-            setTimeout(() => {
-                welcomeScreen.style.display = 'none';
-
-                // Trigger Season 1 Text Reveal
-                const s1Text = document.querySelector('#season-1 .scramble-text');
-                if (s1Text) {
-                    // Reset if it already ran
-                    s1Text.dataset.scrambled = 'false';
-                    const fx = new TextScramble(s1Text);
-                    fx.setText(s1Text.innerText);
-                    s1Text.dataset.scrambled = 'true';
-                }
-            }, 2000);
+            // Init App
+            new TabManager();
         });
     </script>
 </body>
