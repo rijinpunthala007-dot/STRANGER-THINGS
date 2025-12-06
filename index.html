@@ -371,15 +371,18 @@
             }
 
             .platform-grid {
-                padding: 1.5rem;
+                padding: 1rem;
+                /* Reduced global padding */
             }
 
             /* Responsive Hero */
             .hero-section {
                 height: 60vh;
-                padding: 1.5rem;
+                /* Reduced height for better content visibility */
+                background-attachment: scroll !important;
+                /* Fix iOS jitter */
+                padding: 1rem;
                 justify-content: center;
-                /* Center content on mobile */
                 align-items: flex-start;
             }
 
@@ -390,6 +393,7 @@
 
             .hero-title {
                 font-size: 3rem;
+                /* Smaller title */
             }
 
             .hero-synopsis {
@@ -410,12 +414,10 @@
                 gap: 1rem;
                 -webkit-overflow-scrolling: touch;
                 scrollbar-width: none;
-                /* Firefox */
             }
 
             .tabs-header::-webkit-scrollbar {
                 display: none;
-                /* Chrome/Safari */
             }
 
             .tab-btn {
@@ -428,22 +430,35 @@
                 /* Single column */
                 gap: 1.5rem;
                 perspective: none;
-                /* Disable 3D space on mobile */
+                /* Disable 3D space */
             }
 
-            /* Disable 3D Tilt Styles on Mobile */
+            /* Optimized Episode Cards for Mobile */
             .episode-card {
                 transform: none !important;
                 transition: transform 0.2s ease;
-                /* Simple scale only */
+
+                /* FORCE ACTIVE STATE (Simulate Hover) */
+                border-color: rgba(229, 9, 20, 0.5);
+                box-shadow: 0 0 10px rgba(229, 9, 20, 0.2);
             }
 
-            .episode-card:hover {
-                transform: scale(1.02) !important;
-                background: linear-gradient(180deg, rgba(30, 30, 30, 1) 0%, rgba(10, 10, 10, 1) 100%);
+            /* Enhanced visuals for "Always On" state */
+            .episode-card .card-thumbnail img {
+                transform: scale(1.02);
+                /* Slight permanent zoom */
+                filter: brightness(1.1);
+                /* Brighter image */
             }
 
-            /* Disable glare on mobile */
+            .episode-card .episode-title {
+                color: #e50914;
+                /* Red title */
+                text-shadow: 0 0 8px rgba(229, 9, 20, 0.3);
+                /* Glow */
+            }
+
+            /* Disable Glare on Mobile */
             .episode-card::after {
                 display: none;
             }
@@ -576,11 +591,11 @@
             }
 
             attachTiltEffects() {
-                const cards = this.episodesContainer.querySelectorAll('.episode-card');
+                // Performance Optimization: Only run physics engine on Desktop (> 768px)
+                // This saves battery and improves scroll performance on mobile
+                if (!window.matchMedia("(min-width: 768px)").matches) return;
 
-                // Optimization: Don't attach physics if touch device or mobile
-                const isTouch = window.matchMedia('(pointer: coarse)').matches;
-                if (isTouch) return;
+                const cards = this.episodesContainer.querySelectorAll('.episode-card');
 
                 cards.forEach(card => {
                     card.addEventListener('mousemove', (e) => {
